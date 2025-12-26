@@ -61,7 +61,10 @@ def contribution_graph(
         component="graph",
         model_info=model_info.__dict__,
         tokens=tokens,
-        edges_per_token=[nx.node_link_data(g)["links"] for g in graphs],
+        edges_per_token=[
+            [{"source": u, "target": v, **data} for u, v, data in g.edges(data=True)]
+            for g in graphs
+        ],
         default=None,
         key=key,
     )

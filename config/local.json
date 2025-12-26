@@ -11,6 +11,16 @@
         "meta-llama/Meta-Llama-3-70B-Instruct": null,
         "mistral/mixtral-instruct": null,
 
+        "meta-llama/Llama-3.1-70B": null,
+        "meta-llama/Llama-3.1-8B": null,
+        "meta-llama/Llama-3.1-8B-Instruct": null,
+        "meta-llama/Llama-3.1-70B-Instruct": null,
+        "meta-llama/Llama-3.2-1B": null,
+        "meta-llama/Llama-3.2-3B": null,
+        "meta-llama/Llama-3.2-1B-Instruct": null,
+        "meta-llama/Llama-3.2-3B-Instruct": null,
+        "meta-llama/Llama-3.3-70B-Instruct": null,
+
         "gpt2": null,
         "distilgpt2": null,
         "facebook/opt-125m": null,
@@ -49,7 +59,15 @@
         "facebook/opt-2.7b": null,
         "facebook/opt-6.7b": null,
         "facebook/opt-13b": null,
-        "facebook/opt-30b": null
+        "facebook/opt-30b": null,
+
+        "Qwen/Qwen3-0.6B": null,
+        "Qwen/Qwen3-1.7B": null,
+        "Qwen/Qwen3-4B": null,
+        "Qwen/Qwen3-8B": null,
+        "Qwen/Qwen3-14B": null,
+        "microsoft/phi-3": null,
+        "microsoft/phi-4": null
     },
     "default_model": "",
     "demo_mode": false

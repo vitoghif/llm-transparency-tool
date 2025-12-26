@@ -4,7 +4,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Tuple
+from typing import Tuple, Annotated
 
 import einops
 import torch
@@ -92,13 +92,13 @@ def get_contributions_with_one_off_part(
 @torch.no_grad()
 @typechecked
 def get_attention_contributions(
-    resid_pre: Float[torch.Tensor, "batch pos d_model"],
-    resid_mid: Float[torch.Tensor, "batch pos d_model"],
-    decomposed_attn: Float[torch.Tensor, "batch pos key_pos head d_model"],
+    resid_pre: Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_model"]],
+    resid_mid: Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_model"]],
+    decomposed_attn: Annotated[torch.Tensor, Float[torch.Tensor, "batch pos key_pos head d_model"]],
     distance_norm: int = 1,
 ) -> Tuple[
-    Float[torch.Tensor, "batch pos key_pos head"],
-    Float[torch.Tensor, "batch pos"],
+    Annotated[torch.Tensor, Float[torch.Tensor, "batch pos key_pos head"]],
+    Annotated[torch.Tensor, Float[torch.Tensor, "batch pos"]],
 ]:
     """
     Returns a pair of
@@ -127,11 +127,11 @@ def get_attention_contributions(
 @torch.no_grad()
 @typechecked
 def get_mlp_contributions(
-    resid_mid: Float[torch.Tensor, "batch pos d_model"],
-    resid_post: Float[torch.Tensor, "batch pos d_model"],
-    mlp_out: Float[torch.Tensor, "batch pos d_model"],
+    resid_mid: Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_model"]],
+    resid_post: Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_model"]],
+    mlp_out: Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_model"]],
     distance_norm: int = 1,
-) -> Tuple[Float[torch.Tensor, "batch pos"], Float[torch.Tensor, "batch pos"]]:
+) -> Tuple[Annotated[torch.Tensor, Float[torch.Tensor, "batch pos"]], Annotated[torch.Tensor, Float[torch.Tensor, "batch pos"]]]:
     """
     Returns a pair of (mlp, residual) contributions for each sentence and token.
     """
@@ -145,11 +145,11 @@ def get_mlp_contributions(
 @torch.no_grad()
 @typechecked
 def get_decomposed_mlp_contributions(
-    resid_mid: Float[torch.Tensor, "d_model"],
-    resid_post: Float[torch.Tensor, "d_model"],
-    decomposed_mlp_out: Float[torch.Tensor, "hidden d_model"],
+    resid_mid: Annotated[torch.Tensor, Float[torch.Tensor, "d_model"]],
+    resid_post: Annotated[torch.Tensor, Float[torch.Tensor, "d_model"]],
+    decomposed_mlp_out: Annotated[torch.Tensor, Float[torch.Tensor, "hidden d_model"]],
     distance_norm: int = 1,
-) -> Tuple[Float[torch.Tensor, "hidden"], float]:
+) -> Tuple[Annotated[torch.Tensor, Float[torch.Tensor, "hidden"]], float]:
     """
     Similar to `get_mlp_contributions`, but it takes the MLP output for each neuron of
     the hidden layer and thus computes a contribution per neuron.

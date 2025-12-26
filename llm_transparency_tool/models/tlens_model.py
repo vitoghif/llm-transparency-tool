@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Annotated, List, Optional
 
 import torch
 import transformer_lens
@@ -21,8 +21,8 @@ from transformer_lens.loading_from_pretrained import MODEL_ALIASES, get_official
 
 @dataclass
 class _RunInfo:
-    tokens: Int[torch.Tensor, "batch pos"]
-    logits: Float[torch.Tensor, "batch pos d_vocab"]
+    tokens: Annotated[torch.Tensor, Int[torch.Tensor, "batch pos"]]
+    logits: Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_vocab"]]
     cache: transformer_lens.ActivationCache
 
 
@@ -126,8 +126,14 @@ class TransformerLensTransparentLlm(TransparentLlm):
             tlens_model.set_tokenizer(self.hf_tokenizer, default_padding_side="left")
 
         tlens_model.set_use_attn_result(True)
-        tlens_model.set_use_attn_in(False)
         tlens_model.set_use_split_qkv_input(False)
+
+        # try:
+        #     # for GQA models, we can't use use_attn_in
+        #     tlens_model.set_use_attn_in(False)
+        # except AttributeError:
+        #     print("Model does not support set_use_attn_in")
+        #     pass
 
         return tlens_model
 
@@ -159,17 +165,17 @@ class TransformerLensTransparentLlm(TransparentLlm):
         return self._last_run.logits.shape[0]
 
     @typechecked
-    def tokens(self) -> Int[torch.Tensor, "batch pos"]:
+    def tokens(self) -> Annotated[torch.Tensor, Int[torch.Tensor, "batch pos"]]:
         if not self._last_run:
             raise self._run_exception
         return self._last_run.tokens
 
     @typechecked
-    def tokens_to_strings(self, tokens: Int[torch.Tensor, "pos"]) -> List[str]:
+    def tokens_to_strings(self, tokens: Annotated[torch.Tensor, Int[torch.Tensor, "pos"]]) -> List[str]:
         return self._model.to_str_tokens(tokens)
 
     @typechecked
-    def logits(self) -> Float[torch.Tensor, "batch pos d_vocab"]:
+    def logits(self) -> Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_vocab"]]:
         if not self._last_run:
             raise self._run_exception
         return self._last_run.logits
@@ -178,9 +184,9 @@ class TransformerLensTransparentLlm(TransparentLlm):
     @typechecked
     def unembed(
         self,
-        t: Float[torch.Tensor, "d_model"],
+        t: Annotated[torch.Tensor, Float[torch.Tensor, "d_model"]],
         normalize: bool,
-    ) -> Float[torch.Tensor, "vocab"]:
+    ) -> Annotated[torch.Tensor, Float[torch.Tensor, "vocab"]]:
         # t: [d_model] -> [batch, pos, d_model]
         tdim = t.unsqueeze(0).unsqueeze(0)
         if normalize:
@@ -198,7 +204,7 @@ class TransformerLensTransparentLlm(TransparentLlm):
     # ================= Methods related to the residual stream =================
 
     @typechecked
-    def residual_in(self, layer: int) -> Float[torch.Tensor, "batch pos d_model"]:
+    def residual_in(self, layer: int) -> Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_model"]]:
         if not self._last_run:
             raise self._run_exception
         return self._get_block(layer, "hook_resid_pre")
@@ -206,13 +212,13 @@ class TransformerLensTransparentLlm(TransparentLlm):
     @typechecked
     def residual_after_attn(
         self, layer: int
-    ) -> Float[torch.Tensor, "batch pos d_model"]:
+    ) -> Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_model"]]:
         if not self._last_run:
             raise self._run_exception
         return self._get_block(layer, "hook_resid_mid")
 
     @typechecked
-    def residual_out(self, layer: int) -> Float[torch.Tensor, "batch pos d_model"]:
+    def residual_out(self, layer: int) -> Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_model"]]:
         if not self._last_run:
             raise self._run_exception
         return self._get_block(layer, "hook_resid_post")
@@ -220,7 +226,7 @@ class TransformerLensTransparentLlm(TransparentLlm):
     # ================ Methods related to the feed-forward layer ===============
 
     @typechecked
-    def ffn_out(self, layer: int) -> Float[torch.Tensor, "batch pos d_model"]:
+    def ffn_out(self, layer: int) -> Annotated[torch.Tensor, Float[torch.Tensor, "batch pos d_model"]]:
         if not self._last_run:
             raise self._run_exception
         return self._get_block(layer, "hook_mlp_out")
@@ -232,7 +238,7 @@ class TransformerLensTransparentLlm(TransparentLlm):
         batch_i: int,
         layer: int,
         pos: int,
-    ) -> Float[torch.Tensor, "hidden d_model"]:
+    ) -> Annotated[torch.Tensor, Float[torch.Tensor, "hidden d_model"]]:
         # Take activations right before they're multiplied by W_out, i.e. non-linearity
         # and layer norm are already applied.
         processed_activations = self._get_block(layer, "mlp.hook_post")[batch_i][pos]
@@ -244,7 +250,7 @@ class TransformerLensTransparentLlm(TransparentLlm):
         batch_i: int,
         layer: int,
         pos: int,
-    ) -> Float[torch.Tensor, "hidden"]:
+    ) -> Annotated[torch.Tensor, Float[torch.Tensor, "hidden"]]:
         return self._get_block(layer, "mlp.hook_pre")[batch_i][pos]
 
     @typechecked
@@ -252,7 +258,7 @@ class TransformerLensTransparentLlm(TransparentLlm):
         self,
         layer: int,
         neuron: int,
-    ) -> Float[torch.Tensor, "d_model"]:
+    ) -> Annotated[torch.Tensor, Float[torch.Tensor, "d_model"]]:
         return self._model.blocks[layer].mlp.W_out[neuron]
 
     # ==================== Methods related to the attention ====================
@@ -260,7 +266,7 @@ class TransformerLensTransparentLlm(TransparentLlm):
     @typechecked
     def attention_matrix(
         self, batch_i: int, layer: int, head: int
-    ) -> Float[torch.Tensor, "query_pos key_pos"]:
+    ) -> Annotated[torch.Tensor, Float[torch.Tensor, "query_pos key_pos"]]:
         return self._get_block(layer, "attn.hook_pattern")[batch_i][head]
 
     @typechecked
@@ -270,7 +276,7 @@ class TransformerLensTransparentLlm(TransparentLlm):
         layer: int,
         pos: int,
         head: int,
-    ) -> Float[torch.Tensor, "d_model"]:
+    ) -> Annotated[torch.Tensor, Float[torch.Tensor, "d_model"]]:
         return self._get_block(layer, "attn.hook_result")[batch_i][pos][head]
 
     @typechecked
@@ -279,14 +285,14 @@ class TransformerLensTransparentLlm(TransparentLlm):
         batch_i: int,
         layer: int,
         pos: int,
-    ) -> Float[torch.Tensor, "d_model"]:
+    ) -> Annotated[torch.Tensor, Float[torch.Tensor, "d_model"]]:
         return self._get_block(layer, "hook_attn_out")[batch_i][pos]
 
     @torch.no_grad()
     @typechecked
     def decomposed_attn(
         self, batch_i: int, layer: int
-    ) -> Float[torch.Tensor, "pos key_pos head d_model"]:
+    ) -> Annotated[torch.Tensor, Float[torch.Tensor, "pos key_pos head d_model"]]:
         if not self._last_run:
             raise self._run_exception
         hook_v = self._get_block(layer, "attn.hook_v")[batch_i]

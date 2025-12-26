@@ -1,2 +1,25 @@
+[project]
+name = "llm-transparency-tool"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "datasets>=4.4.2",
+    "einops>=0.8.1",
+    "fancy-einsum>=0.0.3",
+    "jaxtyping>=0.3.4",
+    "networkx>=3.6.1",
+    "plotly>=6.5.0",
+    "pyinstrument>=5.1.1",
+    "setuptools>=80.9.0",
+    "streamlit>=1.52.2",
+    "streamlit-extras>=0.7.8",
+    "tokenizers>=0.22.1",
+    "torch>=2.9.1",
+    "transformer-lens>=2.16.1",
+    "transformers>=4.57.3",
+]
+
 [tool.black]
 line-length = 120

@@ -160,7 +160,7 @@ class App:
             index=info.keys(),
             columns=["Model parameter"],
         )
-        st.dataframe(df, use_container_width=False)
+        st.dataframe(df, width="content")
 
     def draw_dataset_selection(self) -> int:
         def update_dataset(filename: Optional[str]):
@@ -267,7 +267,7 @@ class App:
         fig.update_yaxes(tickmode="linear")
         fig.update_coloraxes(showscale=False)
 
-        st.plotly_chart(fig, use_container_width=True, theme=None)
+        st.plotly_chart(fig, width="content", theme=None)
 
     def draw_attn_info(self, edge: UiGraphEdge, container_attention_map) -> Optional[int]:
         """
@@ -416,7 +416,7 @@ class App:
             .format(precision=3),
             hide_index=True,
             height=self.render_settings.table_cell_height * (n_total + 1),
-            use_container_width=True,
+            width="content",
         )
 
     def draw_token_dynamics(self, representation: torch.Tensor, block_name: str) -> None:
